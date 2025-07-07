@@ -1,4 +1,4 @@
-import {NewspaperIcon} from "@phosphor-icons/react/ssr";
+import {GithubLogoIcon, NewspaperIcon} from "@phosphor-icons/react/ssr";
 import Article from "@/components/Article";
 import WeatherWidget from "@/components/WeatherWidget";
 import path from "node:path";
@@ -55,8 +55,10 @@ export default async function Home() {
                       </li>
                   </ul>
                   <hr className='mt-12 w-full text-blue-500' />
-                  <div className='mt-12 flex justify-center gap-4'>
+                  <div className='mt-12 flex justify-center items-center gap-4'>
                       <a href='https://dvx.lv/'>dvx_lv</a>
+                      |
+                      <a href='https://github.com/devinoff/news-app' className='flex items-center gap-2'><GithubLogoIcon weight='bold' /> code</a>
                       |
                       <span>{new Date().getFullYear()}</span>
                   </div>
