@@ -3,17 +3,18 @@ import Parser, { Item } from "rss-parser";
 import * as crypto from 'crypto';
 import * as fs from "node:fs";
 import * as dotenv from 'dotenv';
+import { Category, Source, Article, DailyBriefing } from "@/types";
 
 dotenv.config({ path: './.env.local' });
 
 async function Main() {
     const parser = new Parser();
 
-    const lsmRss = await parser.parseURL('https://www.lsm.lv/rss/');
-    const tvnetRss = await parser.parseURL('https://www.tvnet.lv/rss');
-    const delfiRss = await parser.parseURL('https://www.delfi.lv/rss/index.xml');
-    const apolloRss = await parser.parseURL('https://www.apollo.lv/rss');
-    const jaunsRss = await parser.parseURL('https://jauns.lv/rss');
+    const lsmRss = await parser.parseURL(process.env.LSM_RSS_URL!);
+    const tvnetRss = await parser.parseURL(process.env.TVNET_RSS_URL!);
+    const delfiRss = await parser.parseURL(process.env.DELFI_RSS_URL!);
+    const apolloRss = await parser.parseURL(process.env.APOLLO_RSS_URL!);
+    const jaunsRss = await parser.parseURL(process.env.JAUNS_RSS_URL!);
 
     interface RssObjectInterface {
         id: string,
@@ -111,10 +112,6 @@ async function Main() {
         return;
     }
 
-    interface Source { name: string; title: string; url: string; published_at: string; }
-    interface Article { headline: string; sources: Source[]; }
-    interface Category { category_name: string; articles: Article[]; }
-
     const finalDailyBriefing: Category[] = [];
     const lastUpdatedAt = new Date().toISOString();
 
@@ -168,7 +165,7 @@ async function Main() {
         finalDailyBriefing.push(newCategory);
     }
 
-    const outputData = {
+    const outputData: DailyBriefing = {
         lastUpdatedAt: lastUpdatedAt,
         newsCategories: finalDailyBriefing
     };
