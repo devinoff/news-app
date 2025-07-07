@@ -59,7 +59,7 @@ async function Main() {
     `);
     const articleTextString = articleTextArray.join('---');
 
-    const newsEditorPrompt = fs.readFileSync('./public/prompt.txt', 'utf-8');
+    const newsEditorPrompt = fs.readFileSync('./prompt.txt', 'utf-8');
 
     interface GeminiSourceIds {
         headline: string;
@@ -173,7 +173,7 @@ async function Main() {
         newsCategories: finalDailyBriefing
     };
 
-    const outputFilePath = './public/article-data.json';
+    const outputFilePath = './article-data.json';
     try {
         fs.writeFileSync(outputFilePath, JSON.stringify(outputData, null, 2), 'utf8');
         console.log(`Successfully processed and saved news data to ${outputFilePath}`);
