@@ -3,7 +3,7 @@ import {WeatherData} from "@/types";
 
 export default async function WeatherWidget() {
     try {
-        const response = await fetch(`https://api.weatherapi.com/v1/current.json?q=Riga&key=${process.env.WEATHER_API_KEY}`, { next: { revalidate: 300 } });
+        const response = await fetch(`https://api.weatherapi.com/v1/current.json?q=Riga&key=${process.env.WEATHER_API_KEY}`, { next: { revalidate: Number(process.env.WEATHER_REVALIDATION_SECONDS) } });
 
         if (!response.ok) return null;
 
