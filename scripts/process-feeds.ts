@@ -79,7 +79,13 @@ async function Main() {
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
         const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-        const modelName = 'gemini-2.5-flash';
+        let modelName = process.env.GEMINI_MODEL_NAME;
+        if  (!modelName) {
+            console.warn("WARNING: 'GEMINI_MODEL_NAME' not found in environment variables.");
+            modelName = 'gemini-1.5-flash';
+            console.warn(`--> Falling back to default model: '${modelName}'\n`);
+        }
+
         const fullPrompt = newsEditorPrompt + articleTextString;
 
         const response = await genAI.models.generateContent({
