@@ -22,7 +22,7 @@ export default async function Home() {
               </header>
               <small className='bg-blue-500/10 px-6 py-4 border border-white/20 rounded-md text-[14px]'>Šis ziņu apkopojums ir veidots un kategorizēts ar mākslīgā intelekta (Google Gemini 2.5 Flash) palīdzību. Lūdzu, ņemiet vērā, ka MI modeļi var saturēt neprecizitātes vai interpretācijas kļūdas. Lai pārliecinātos par informācijas precizitāti, vienmēr pārbaudiet oriģinālos ziņu avotus, kas norādīti pie katras ziņas.</small>
               <div className='flex flex-col gap-24 sm:gap-16'>
-                  {articleData.newsCategories.map((category) => (
+                  {articleData.newsCategories.filter(category => category.articles.length > 0).map((category) => (
                       <div key={category.category_name} className='w-full flex flex-col gap-5'>
                           <h2 className='text-white text-xl font-bold bg-blue-500 px-7 py-2 rounded-md mb-2 w-full sm:w-fit text-center sm:text-left'>{category.category_name}</h2>
                           {category.articles.filter(article => article.sources[0]).map((article) => (
