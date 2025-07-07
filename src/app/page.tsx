@@ -56,7 +56,7 @@ export default async function Home() {
                   </ul>
                   <hr className='mt-12 w-full text-blue-500' />
                   <div className='mt-12 flex justify-center gap-4'>
-                      <a href='http://192.168.8.90:35200/'>dvx_lv</a>
+                      <a href='https://dvx.lv/'>dvx_lv</a>
                       |
                       <span>2025</span>
                   </div>
