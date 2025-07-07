@@ -58,7 +58,7 @@ export default async function Home() {
                   <div className='mt-12 flex justify-center gap-4'>
                       <a href='https://dvx.lv/'>dvx_lv</a>
                       |
-                      <span>2025</span>
+                      <span>{new Date().getFullYear()}</span>
                   </div>
               </footer>
           </div>
