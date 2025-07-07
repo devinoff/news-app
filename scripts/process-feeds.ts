@@ -5,7 +5,7 @@ import * as fs from "node:fs";
 import * as dotenv from 'dotenv';
 import { Category, Source, Article, DailyBriefing } from "@/types";
 
-dotenv.config({ path: './.env.local' });
+dotenv.config({ path: './.env' });
 
 async function Main() {
     const parser = new Parser();
@@ -182,6 +182,28 @@ async function Main() {
         console.log(`Successfully processed and saved news data to ${outputFilePath}`);
     } catch (error) {
         console.error(`Error writing final output file: ${error}`);
+        return;
+    }
+
+    console.log('Attempting to trigger Next.js revalidation...');
+    const revalidateHost = process.env.APP_INTERNAL_URL || 'http://web:3000';
+    const revalidateSecret = process.env.MY_REVALIDATE_SECRET;
+    if (!revalidateHost || !revalidateSecret) {
+        console.error('ERROR: APP_INTERNAL_URL or MY_REVALIDATE_SECRET not set. Cannot revalidate.');
+        return;
+    }
+
+    const revalidateEndpoint = `${revalidateHost}/api/revalidate?secret=${revalidateSecret}`;
+    try {
+        const revalidateResponse = await fetch(revalidateEndpoint);
+        if (revalidateResponse.ok) {
+            console.log('Successfully triggered Next.js revalidation!');
+        } else {
+            const errorText = await revalidateResponse.text();
+            console.error(`Failed to trigger revalidation: ${revalidateResponse.status} - ${errorText}`);
+        }
+    } catch (fetchError) {
+        console.error('Network error during revalidation call:', fetchError);
     }
 }
 
