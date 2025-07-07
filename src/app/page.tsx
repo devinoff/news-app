@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 import {DailyBriefing} from "@/types";
 
 export default async function Home() {
-    const filePath = path.join(process.cwd(), 'article-data.json');
+    const filePath = path.join(process.cwd(), 'data', 'article-data.json');
     const jsonData = await fs.readFile(filePath, 'utf-8');
     const articleData: DailyBriefing = JSON.parse(jsonData);
     return (

@@ -176,7 +176,7 @@ async function Main() {
         newsCategories: finalDailyBriefing
     };
 
-    const outputFilePath = './article-data.json';
+    const outputFilePath = './data/article-data.json';
     try {
         fs.writeFileSync(outputFilePath, JSON.stringify(outputData, null, 2), 'utf8');
         console.log(`Successfully processed and saved news data to ${outputFilePath}`);
