@@ -1,0 +1,33 @@
+{
+  "name": "dvx-news-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 36400",
+    "build": "next build",
+    "start": "next start -p 36400",
+    "lint": "next lint",
+    "process-news": "tsx scripts/process-feeds.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^1.8.0",
+    "@phosphor-icons/react": "^2.1.10",
+    "dotenv": "^17.0.1",
+    "next": "15.3.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.5",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.3",
+    "typescript": "^5"
+  }
+}
