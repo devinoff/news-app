@@ -2,10 +2,10 @@ import { GoogleGenAI } from '@google/genai';
 import Parser, { Item } from "rss-parser";
 import * as crypto from 'crypto';
 import * as fs from "node:fs";
-import * as dotenv from 'dotenv';
 import { Category, Source, Article, DailyBriefing } from "@/types";
 
-dotenv.config({ path: './.env' });
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function Main() {
     const parser = new Parser();
@@ -73,49 +73,77 @@ async function Main() {
 
     let geminiCategorizedBriefing: GeminiCategoryOutput[] = [];
 
-    try {
-        console.log("Connecting to Gemini and sending news data...");
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 5000;
 
-        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-        const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            console.log(`Attempt ${attempt}/${MAX_RETRIES}: Connecting to Gemini and sending news data...`);
 
-        let modelName = process.env.GEMINI_MODEL_NAME;
-        if  (!modelName) {
-            console.warn("WARNING: 'GEMINI_MODEL_NAME' not found in environment variables.");
-            modelName = 'gemini-1.5-flash';
-            console.warn(`--> Falling back to default model: '${modelName}'\n`);
+            const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+            const genAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+            let modelName = process.env.GEMINI_MODEL_NAME;
+            if (!modelName) {
+                console.warn("WARNING: 'GEMINI_MODEL_NAME' not found in environment variables.");
+                modelName = 'gemini-1.5-flash';
+                console.warn(`--> Falling back to default model: '${modelName}'\n`);
+            }
+
+            const fullPrompt = newsEditorPrompt + articleTextString;
+
+            const response = await genAI.models.generateContent({
+                model: modelName,
+                contents: fullPrompt,
+                // config: {
+                //     thinkingConfig: {
+                //         thinkingBudget: 0,
+                //     },
+                // },
+            });
+
+            const responseText = response.text;
+            console.log('Successfully received response from Gemini!');
+
+            if (!responseText) {
+                throw new Error('Error: Response text is empty!');
+            }
+
+            let cleanedText = responseText;
+            if (cleanedText.startsWith("```json")) {
+                cleanedText = cleanedText.substring(7, cleanedText.length - 3).trim();
+            }
+
+            console.log('--- Raw Gemini Response (responseText) ---');
+            console.log(responseText);
+            console.log('-------------------------------------------');
+            console.log('--- Cleaned Gemini Response (cleanedText) ---');
+            console.log(cleanedText);
+            console.log('-------------------------------------------');
+
+            geminiCategorizedBriefing = JSON.parse(cleanedText);
+            console.log('Successfully parsed Gemini JSON!');
+            break;
+        } catch (error: unknown) {
+            console.error(`Attempt ${attempt} failed:`);
+            console.error(error);
+
+            if (error instanceof SyntaxError) {
+                console.error('JSON parsing failed. Retrying...');
+            } else if (error instanceof Error && error.message.includes('API key')) {
+                console.error('API Key error. Retrying might not help. Exiting...');
+                process.exit(1);
+            } else {
+                console.error('Non-JSON parsing error. Retrying...');
+            }
+
+            if (attempt < MAX_RETRIES) {
+                await sleep(RETRY_DELAY_MS);
+            } else {
+                console.error('Max retry attempts reached. Failing to process news data.');
+                process.exit(1);
+            }
         }
-
-        const fullPrompt = newsEditorPrompt + articleTextString;
-
-        const response = await genAI.models.generateContent({
-            model: modelName,
-            contents: fullPrompt,
-            // config: {
-            //     thinkingConfig: {
-            //         thinkingBudget: 0,
-            //     },
-            // },
-        });
-
-        const responseText = response.text;
-
-        console.log('Successfully received response from Gemini!');
-
-        if (!responseText) throw new Error('Error: Response text is empty!');
-
-        let cleanedText = responseText;
-        if (cleanedText.startsWith("```json")) {
-            cleanedText = cleanedText.substring(7, cleanedText.length - 3).trim();
-        }
-
-        geminiCategorizedBriefing = JSON.parse(cleanedText);
-        console.log('Successfully parsed Gemini JSON!');
-
-    } catch (error) {
-        console.error('Failed to connect to Gemini or process its response:');
-        console.error(error);
-        return;
     }
 
     const finalDailyBriefing: Category[] = [];
@@ -182,7 +210,7 @@ async function Main() {
         console.log(`Successfully processed and saved news data to ${outputFilePath}`);
     } catch (error) {
         console.error(`Error writing final output file: ${error}`);
-        return;
+        process.exit(1);
     }
 
     console.log('Attempting to trigger Next.js revalidation...');
