@@ -114,13 +114,6 @@ async function Main() {
                 cleanedText = cleanedText.substring(7, cleanedText.length - 3).trim();
             }
 
-            console.log('--- Raw Gemini Response (responseText) ---');
-            console.log(responseText);
-            console.log('-------------------------------------------');
-            console.log('--- Cleaned Gemini Response (cleanedText) ---');
-            console.log(cleanedText);
-            console.log('-------------------------------------------');
-
             geminiCategorizedBriefing = JSON.parse(cleanedText);
             console.log('Successfully parsed Gemini JSON!');
             break;
